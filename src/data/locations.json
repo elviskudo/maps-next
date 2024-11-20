@@ -1,0 +1,66 @@
+[
+  {
+    "id": 1,
+    "name": "Food Delivery",
+    "latitude": 40.73061,
+    "longitude": -73.935242,
+    "category": "Food",
+    "discount": 35
+  },
+  {
+    "id": 2,
+    "name": "Hot Lunch - McDonald's",
+    "latitude": 40.73041,
+    "longitude": -73.935142,
+    "category": "Food",
+    "discount": 40
+  },
+  {
+    "id": 3,
+    "name": "Italian Pizzeria",
+    "latitude": 40.73161,
+    "longitude": -73.933242,
+    "category": "Food",
+    "discount": 10
+  },
+  {
+    "id": 4,
+    "name": "Accessories Discounts",
+    "latitude": 40.73261,
+    "longitude": -73.934242,
+    "category": "Accessories",
+    "discount": 10
+  },
+  {
+    "id": 5,
+    "name": "Cosmetics Store",
+    "latitude": 40.73361,
+    "longitude": -73.935342,
+    "category": "Cosmetics",
+    "discount": 15
+  },
+  {
+    "id": 6,
+    "name": "Jackets Outlet",
+    "latitude": 40.73461,
+    "longitude": -73.936442,
+    "category": "Clothing",
+    "discount": 15
+  },
+  {
+    "id": 7,
+    "name": "Sky Travel Agency",
+    "latitude": 40.73561,
+    "longitude": -73.937542,
+    "category": "Travel",
+    "discount": 10
+  },
+  {
+    "id": 8,
+    "name": "Electronics Store",
+    "latitude": 40.73661,
+    "longitude": -73.938642,
+    "category": "Electronics",
+    "discount": 5
+  }
+]

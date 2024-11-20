@@ -1,101 +1,126 @@
+'use client'
+
+import { useEffect, useState } from 'react';
+import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
+import { Poppins } from 'next/font/google';
 import Image from "next/image";
 
-export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+import locationsData from '@/data/locations.json'; // Adjust the path as needed
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+const center = {
+  lat: 40.7128, // Default center (e.g., New York City)
+  lng: -74.0060,
+};
+
+const containerStyle = {
+  width: '100%',
+  height: '100%',
+};
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-poppins',
+});
+
+export default function Home() {
+  const [categories, setCategories] = useState([]);
+  const [markers, setMarkers] = useState([]);
+  const [map, setMap] = useState(null);
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+  });
+
+  useEffect(() => {
+    // Load categories from locations.json
+    const fetchCategories = () => {
+      // Assuming you want to create categories from locations data
+      const uniqueCategories = Array.from(new Set(locationsData.map(location => location.category)))
+        .map(category => ({
+          name: category,
+          imageUrl: 'placeholder-image-url', // Replace with your actual image URLs
+          discount: Math.floor(Math.random() * 50) // Random discount for demo purposes
+        }));
+      setCategories(uniqueCategories);
+    };
+
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    // Set markers directly from dummy data
+    setMarkers(locationsData);
+  }, []);
+
+  const handleMapLoad = (mapInstance) => {
+    setMap(mapInstance);
+  };
+
+  const handleBoundsChanged = () => {
+    if (map) {
+      const bounds = map.getBounds();
+      const northEast = bounds.getNorthEast();
+      const southWest = bounds.getSouthWest();
+
+      const fetchMarkers = () => {
+        const filteredMarkers = locationsData.filter(marker =>
+          marker.latitude >= southWest.lat() &&
+          marker.latitude <= northEast.lat() &&
+          marker.longitude >= southWest.lng() &&
+          marker.longitude <= northEast.lng()
+        );
+        setMarkers(filteredMarkers);
+      };
+
+      fetchMarkers();
+    }
+  };
+
+  return (
+    <div className={`${poppins.variable} flex`}>
+      <div className="w-1/3 p-4 overflow-y-auto">
+        <h1 className="text-2xl font-semibold">Categories</h1>
+        <div className="grid grid-cols-1 gap-4 mt-4">
+          {categories.map((category) => (
+            <div
+              key={category.id}
+              className="relative p-4 bg-white rounded-lg shadow-md cursor-pointer"
+            >
+              <Image src={category.imageUrl} alt={category.name} className="w-full h-24 object-cover rounded-t-lg" />
+              <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full">
+                {category.discount}%
+              </div>
+              <h2 className="mt-2 text-lg font-medium">{category.name}</h2>
+              <button className="mt-2 bg-blue-500 text-white py-1 px-3 rounded">
+                Activate Now
+              </button>
+            </div>
+          ))}
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+      <div className="w-2/3">
+        {isLoaded && (
+          <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={center}
+            zoom={12}
+            onLoad={handleMapLoad}
+            onBoundsChanged={handleBoundsChanged}
+          >
+            {markers.map((marker) => (
+              <Marker
+                key={marker.id}
+                position={{ lat: marker.latitude, lng: marker.longitude }}
+                onClick={() => {
+                  // Logic to show marker info
+                  alert(`Marker clicked: ${marker.name}`);
+                }}
+              />
+            ))}
+          </GoogleMap>
+        )}
+      </div>
     </div>
   );
 }
